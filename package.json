@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "i2c-bus": "^5.2.2",
+    "node-schedule": "^2.1.0",
+    "onoff": "^6.0.3",
+    "raspi": "^6.0.1",
+    "raspi-i2c": "^6.2.4",
+    "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.7.0",
+    "eslint-config-pi": "^13.0.0"
+  }
+}
