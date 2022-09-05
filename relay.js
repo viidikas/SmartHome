@@ -53,6 +53,9 @@ function turnOnLight(relay, onoff) {
   i2c.writeByte(I2CADDRESS, relay, onoff);
 }
 
+function readRelay(relay) {
+  i2c.readByte(I2CADDRESS, relay)
+}
 // async function listenSecurity() {
 //   security
 //     .watch((err, value) => {

@@ -7,7 +7,15 @@ const io = new Server(server)
 var fs = require('fs') //require filesystem module
 var path = require('path')
 
-app.use(express.static(path.join(__dirname, 'public')));
+const raspi = require('raspi')
+const i2c = require('i2c-bus')
+const I2CADDRESS = 0x10
+const PUMP = 0x01
+const ESIK = 0x02
+const KORIDOR = 0x03
+const ATTIC = 0x04
+
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.get('/', (req, res) => {
   fs.readFile(__dirname + '/public/index.html', function (err, data) {
@@ -23,12 +31,42 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', socket => {
-  var lightvalue = 0;
+  var lightvalue = 0
   console.log('A user connected')
-  
-  socket.on('light', function(data) {
-    lightvalue = data
-    // socket.emit('light', lightvalue)
+
+  // const rbuf = Buffer.alloc(2)
+
+  socket.on('light', function (data) {
+    // kui readWord vastus = 255 ja socketi passed data = 1, siis saadetakse sendByte 0x10 e. relee lylitatakse sisse.
+    // kui readword vastus = 0 ja socketi passed data = 0, saadetakse sendByte 0x00 e. relee lylitatakse v2lja.
+    i2c
+      .openPromisified(1)
+      .then(i2c1 =>
+        i2c1.readWord(I2CADDRESS, ESIK).then(
+          rawData =>
+            function () {
+              if (rawData == 255 && data == 1) {
+                console.log('Relee lylitati sisse.')// sendByte(..., ..., 0x10). Ainult et kas seda saab teha siinse i2c instantsi sees?
+              } else {
+                console.log('L2ks else ploki sisse.')//do nothing
+              }
+            }
+        )
+      )
+      .then(_ => i2c1.close())
+      .catch(console.log)
+
+      // KUIDAS SEE READWORD FUNKTSIOONIST TULNUD VÄÄRTUS MUUTUJASSE VÕETAKSE???
+
+    // See allj2rgnev ei tööta. relaystatus tuleb vastusena undefined.
+    // const i2c1 = i2c.openSync(1)
+    // lightvalue = data
+
+    // const relayStatus = i2c1.sendByte(ESIK, 0xff, (err, rawData) => {
+    //   if (err) throw err
+    //   return rawData
+    // })
+    // console.log(relayStatus)
   })
 
   socket.on('disconnect', () => {
@@ -40,6 +78,18 @@ server.listen(3000, () => {
   console.log('listening on *:3000')
 })
 
+function turnOnLight (relay, onoff) {
+  if (onoff == 1) {
+    onoff = 0x10
+  } else {
+    onoff = 0x00
+  }
+  i2c.writeByte(I2CADDRESS, relay, onoff)
+}
+
+function readRelay (relay) {
+  return i2c.readByte(I2CADDRESS, relay)
+}
 
 // var http = require('http').createServer(handler); //require http server, and create server with function handler()
 // var fs = require('fs'); //require filesystem module
