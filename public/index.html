@@ -1,39 +1,52 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="style.css">
-    </head>
+
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
-    <div class="container">
-        <div class="row-xs-12">
-            <div class="content">
-                <h2>Esiku valgus</h2>
-            </div>
-        <div class="content">
-            <label class="switch">
-                <input type="checkbox" id="light">
-                <span class="slider round"></span>
-                </label>
-            </div>
-        </div>
-    </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-var socket = io(); //load socket.io-client and connect to the host that serves the page
-window.addEventListener("load", function() { //when page loads
-  var lightbox = document.getElementById("light");
-  lightbox.addEventListener("change", function() { //add event listener for when checkbox changes
-    socket.emit("light", Number(this.checked)); //send button status to server (as 1 or 0)
-  });
-});
+    <div class="wrapper">
+        <input type="checkbox" id="light">
+        <label for="light" class="toggle">
+          <span class="toggle-button">
+            <span class="crater crater-1"></span>
+            <span class="crater crater-2"></span>
+            <span class="crater crater-3"></span>   
+            <span class="crater crater-4"></span>
+            <span class="crater crater-5"></span>
+            <span class="crater crater-6"></span>
+            <span class="crater crater-7"></span>
+          </span>
+          <span class="star star-1"></span>
+          <span class="star star-2"></span>
+          <span class="star star-3"></span>
+          <span class="star star-4"></span>
+          <span class="star star-5"></span>
+          <span class="star star-6"></span>
+          <span class="star star-7"></span>
+          <span class="star star-8"></span>
+        </label>
+      </div> 
+      
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io(); //load socket.io-client and connect to the host that serves the page
+        window.addEventListener("load", function () { //when page loads
+            var lightbox = document.getElementById("light");
+            lightbox.addEventListener("change", function () { //add event listener for when checkbox changes
+                socket.emit("light", Number(this.checked)); //send button status to server (as 1 or 0)
+            });
+        });
 
-socket.on('light', function (data) { //get button status from client
-  document.getElementById("light").checked = data; 
-  socket.emit("light", data)//change checkbox according to push button on Raspberry Pi
-});
+        socket.on('light', function (data) { //get button status from client
+            document.getElementById("light").checked = data;
+            socket.emit("light", data)//change checkbox according to push button on Raspberry Pi
+        });
 
-</script>
+    </script>
 
 </body>
+
 </html>
