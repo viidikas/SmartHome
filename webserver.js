@@ -32,12 +32,11 @@ app.get('/', (req, res) => {
 const i2c1 = i2c.open(1, err => {
   if (err) throw err
 })
-
+var lightvalue = 0
 io.on('connection', socket => {
-  var lightvalue = 0
   console.log('A user connected')
-
-  socket.on('light', function (data) {
+  socket.emit('light', lightvalue)
+    socket.on('light', function (data) {
     if (data) {
       i2c1.writeByteSync(I2CADDRESS, ESIK, 0x10)
       console.log('Esiku valgus ON')
@@ -50,7 +49,8 @@ io.on('connection', socket => {
             .then(_ => i2c1.close())
         )
         .catch(console.log)
-      console.log(lightvalue)
+      // console.log(lightvalue)
+      socket.broadcast.emit('light', 1)
     } else {
       i2c1.writeByteSync(I2CADDRESS, ESIK, 0x00)
       console.log('Esiku valgus OFF')
@@ -63,7 +63,8 @@ io.on('connection', socket => {
             .then(_ => i2c1.close())
         )
         .catch(console.log)
-      console.log(lightvalue)
+      socket.broadcast.emit('light', 0)
+
     }
   })
 
