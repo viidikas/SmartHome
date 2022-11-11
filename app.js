@@ -40,27 +40,14 @@ const i2c1 = i2c.open(1, err => {
 })
 var lightvalue = 0
 
-// setInterval(timedLightSwitching, 300000)
-
-// function timedLightSwitching () {
-//   if (currentD >= nighTimeStart && currentD < dayTimeStart) {
-//     console.log('Esiku valgus OFF' + currentD)
-//     i2c1.writeByteSync(I2CADDRESS, ESIK, 0x00)
-//     socket.emit('light', 0)
-//   } else if (currentD > dayTimeStart) {
-//     // console.log('Esiku valgus ON' + currentD);
-//     // i2c1.writeByteSync(I2CADDRESS, ESIK, 0x10)
-//     // socket.emit('light', 0)
-//   }
-// }
-
 io.on('connection', socket => {
+
   setInterval(turnLightsOffInTheNight, 300000)
   setInterval(turnLightsOnInTheMorning, 1000)
 
   function turnLightsOffInTheNight () {
     if (currentD >= nighTimeStart && currentD < dayTimeStart) {
-      console.log('Esiku valgus OFF' + currentD)
+      console.log('Esiku valgus OFF by automatic')
       i2c1.writeByteSync(I2CADDRESS, ESIK, 0x00)
       socket.emit('light', 0)
     }
@@ -69,7 +56,7 @@ io.on('connection', socket => {
   function turnLightsOnInTheMorning () {
     if (currentD > dayTimeStart && currentD < dayTimeStart + 2000) {
       i2c1.writeByteSync(I2CADDRESS, ESIK, 0x10)
-      console.log('Esiku valgus ON')
+      console.log('Esiku valgus ON by automatic')
       socket.emit('light', 1)
     }
   }
@@ -78,7 +65,7 @@ io.on('connection', socket => {
   socket.on('light', function (data) {
     if (data) {
       i2c1.writeByteSync(I2CADDRESS, ESIK, 0x10)
-      console.log('Esiku valgus ON')
+      console.log('Esiku valgus ON ' + socket.id)
       i2c
         .openPromisified(1)
         .then(i2c1 =>
@@ -92,7 +79,7 @@ io.on('connection', socket => {
       socket.broadcast.emit('light', 1)
     } else {
       i2c1.writeByteSync(I2CADDRESS, ESIK, 0x00)
-      console.log('Esiku valgus OFF')
+      console.log('Esiku valgus OFF ' + socket.id)
       i2c
         .openPromisified(1)
         .then(i2c1 =>
